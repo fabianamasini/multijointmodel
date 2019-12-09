@@ -65,25 +65,32 @@ function main() {
   draw(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor);
 }
 
-var ANGLE_STEP = 3.0;    // The increments of rotation angle (degrees)
-var g_supportAngle = -90.0; // The rotation angle of arm1 (degrees)
-var g_joint1Angle = 0.0; // The rotation angle of joint1 (degrees)
+var ANGLE_STEP = 3.0;
+var g_supportAngle = -90.0;
+var g_joint1Angle = 0.0;
 var g_fingerAngle = 0.0;
+var g_wristAngle = 0.0;
 
 function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor) {
   console.log(ev.keyCode);
   switch (ev.keyCode) {
-    case 38: // Up arrow key -> the positive rotation of Joint 1 around the z-axis
+    case 38: // Up arrow key -> Joint 1 positive rotation around the z-axis
       if (g_joint1Angle > -135.0) g_joint1Angle += ANGLE_STEP;
       break;
-    case 40: // Down arrow key -> the negative rotation of Joint 1 around the z-axis
+    case 40: // Down arrow key -> Joint 1 negative rotation around the z-axis
       if (g_joint1Angle < 135.0) g_joint1Angle -= ANGLE_STEP;
       break;
-    case 39: // Right arrow key -> the positive rotation of Support around the y-axis
+    case 39: // Right arrow key -> Support positive rotation around the y-axis
       g_supportAngle = (g_supportAngle + ANGLE_STEP) % 360;
       break;
-    case 37: // Left arrow key -> the negative rotation of Support around the y-axis
+    case 37: // Left arrow key -> Support negative rotation around the y-axis
       g_supportAngle = (g_supportAngle - ANGLE_STEP) % 360;
+      break;
+    case 67: // 'C' key -> Wrist positive rotation around the y-axis
+      g_wristAngle = (g_wristAngle + ANGLE_STEP) % 360;
+      break;
+    case 86: // 'V' key -> Wrist negative rotation around the y-axis
+      g_wristAngle = (g_wristAngle - ANGLE_STEP) % 360;
       break;
     case 65: // 'A' key -> fingers' outside rotation
       if (g_fingerAngle < 30.0) g_fingerAngle += ANGLE_STEP;
@@ -117,7 +124,7 @@ function initVertexBuffers(gl) {
     16, 17, 18, 16, 18, 19,    // down
     20, 21, 22, 20, 22, 23     // back
   ]);
-  
+
   // Write the vertex property to buffers 
   if (!initArrayBuffer(gl, 'a_Position', vertices, gl.FLOAT, 3)) return -1;
 
@@ -167,8 +174,6 @@ function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor) {
   // Clear color and depth buffer
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  //pushMatrix(g_modelMatrix);
-
   //Base
   g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
   g_modelMatrix.scale(3.5, 0.2, 3.5);
@@ -186,8 +191,9 @@ function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor) {
   g_modelMatrix.scale(1.3, 1.2, 1.3);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [0.0, 0.0, 1.0, 1.0]);
 
-  //Joint 2
+  //Wrist
   g_modelMatrix.translate(0.0, 10, 0.0);
+  g_modelMatrix.rotate(g_wristAngle, 0.0, 1.0, 0.0);
   g_modelMatrix.scale(1.3, 0.15, 0.5);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [1.0, 1.0, 1.0, 1.0]);
 
