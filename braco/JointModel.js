@@ -54,7 +54,6 @@ function main() {
     return;
   }
 
-
   // Calculate the view projection matrix
   var viewProjMatrix = new Matrix4();
   viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 100.0);
@@ -74,22 +73,22 @@ var g_fingerAngle = 0.0;
 function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor) {
   console.log(ev.keyCode);
   switch (ev.keyCode) {
-    case 38: // Up arrow key -> the positive rotation of joint1 around the z-axis
-      if (g_joint1Angle < 135.0) g_joint1Angle += ANGLE_STEP;
+    case 38: // Up arrow key -> the positive rotation of Joint 1 around the z-axis
+      if (g_joint1Angle > -135.0) g_joint1Angle += ANGLE_STEP;
       break;
-    case 40: // Down arrow key -> the negative rotation of joint1 around the z-axis
-      if (g_joint1Angle > -135.0) g_joint1Angle -= ANGLE_STEP;
+    case 40: // Down arrow key -> the negative rotation of Joint 1 around the z-axis
+      if (g_joint1Angle < 135.0) g_joint1Angle -= ANGLE_STEP;
       break;
-    case 39: // Right arrow key -> the positive rotation of arm1 around the y-axis
+    case 39: // Right arrow key -> the positive rotation of Support around the y-axis
       g_supportAngle = (g_supportAngle + ANGLE_STEP) % 360;
       break;
-    case 37: // Left arrow key -> the negative rotation of arm1 around the y-axis
+    case 37: // Left arrow key -> the negative rotation of Support around the y-axis
       g_supportAngle = (g_supportAngle - ANGLE_STEP) % 360;
       break;
-    case 65:
+    case 65: // 'A' key -> fingers' outside rotation
       if (g_fingerAngle < 30.0) g_fingerAngle += ANGLE_STEP;
       break;
-    case 68:
+    case 68: // 'D' key -> fingers' inside rotation
       if (g_fingerAngle > -30.0) g_fingerAngle -= ANGLE_STEP;
       break;
     default: return; // Skip drawing at no effective action
@@ -118,9 +117,7 @@ function initVertexBuffers(gl) {
     16, 17, 18, 16, 18, 19,    // down
     20, 21, 22, 20, 22, 23     // back
   ]);
-
-
-
+  
   // Write the vertex property to buffers 
   if (!initArrayBuffer(gl, 'a_Position', vertices, gl.FLOAT, 3)) return -1;
 
@@ -173,24 +170,23 @@ function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor) {
   //pushMatrix(g_modelMatrix);
 
   //Base
-  //var arm1Length = 10.0; // Length of arm1
   g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
   g_modelMatrix.scale(3.5, 0.2, 3.5);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [1.0, 1.0, 0.0, 1.0]); // Draw
 
-  //Suporte
+  //Support
   g_modelMatrix.translate(0.0, 10.0, 0.0);
   g_modelMatrix.rotate(g_supportAngle, 0.0, 1.0, 0.0);
   g_modelMatrix.scale(0.3, 5.0, 0.3);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [1.0, 0.0, 1.0, 1.0]);
 
-  //Parte 1 
+  //Joint 1 
   g_modelMatrix.translate(0.0, 10, 0.0);
   g_modelMatrix.rotate(g_joint1Angle, 1.0, 0.0, 0.0);
   g_modelMatrix.scale(1.3, 1.2, 1.3);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [0.0, 0.0, 1.0, 1.0]);
 
-  //Parte 2
+  //Joint 2
   g_modelMatrix.translate(0.0, 10, 0.0);
   g_modelMatrix.scale(1.3, 0.15, 0.5);
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_FragColor, [1.0, 1.0, 1.0, 1.0]);
